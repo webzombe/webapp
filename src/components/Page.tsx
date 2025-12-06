@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useRawInitData } from '@tma.js/sdk-react';
 import { requestContact } from '@tma.js/sdk'; // Импорт метода
 import Sex from "../assets/sex.svg";
