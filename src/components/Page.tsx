@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useRawInitData } from '@tma.js/sdk-react';
-import { postEvent, on, off } from '@tma.js/sdk';
+import { requestContact } from '@tma.js/sdk'; // Импорт метода
 import Sex from "../assets/sex.svg";
 
 export const Page = () => {
@@ -23,26 +23,18 @@ export const Page = () => {
 
   const hasContact = !!initData?.user?.phone_number;
 
-  useEffect(() => {
-    // Слушаем событие phone_requested
-    const handlePhoneRequested = (data: { status: string }) => {
-      if (data.status === 'sent') {
+  const requestUserContact = async () => {
+    try {
+      const response = await requestContact();
+      if (response) {
+        console.log('Контакт получен:', response.contact.phone_number);
         setConfirmed(true);
-        console.log('Контакт успешно получен!');
       } else {
         console.log('Пользователь отказался');
       }
-    };
-    on('phone_requested', handlePhoneRequested);
-
-    // Cleanup
-    return () => {
-      off('phone_requested', handlePhoneRequested);
-    };
-  }, []);
-
-  const requestContact = () => {
-    postEvent('web_app_request_phone'); // Запрос номера телефона
+    } catch (error) {
+      console.error('Ошибка запроса контакта:', error);
+    }
   };
 
   return (
@@ -60,7 +52,7 @@ export const Page = () => {
         </div>
         <button
           className="bg-[#40a7e2] p-4 rounded-xl text-center shadow-[0_0_20px_rgba(0,0,0,0.4)] w-full text-white font-semibold"
-          onClick={requestContact}
+          onClick={requestUserContact}
           disabled={confirmed || hasContact}
           style={{ opacity: (confirmed || hasContact) ? 0.5 : 1 }}
         >
