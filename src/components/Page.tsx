@@ -1,7 +1,8 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useRawInitData } from '@tma.js/sdk-react';
 import { requestContact } from '@tma.js/sdk'; // Импорт метода
 import Sex from "../assets/sex.svg";
+import Jopa from "../assets/jopa.png"; // Импорт вашего фонового изображения (измените путь, если нужно)
 
 export const Page = () => {
   const rawInitData = useRawInitData();
@@ -40,9 +41,9 @@ export const Page = () => {
   return (
     <div className="w-screen h-screen relative overflow-hidden">
       <img
-        src="./src/assets/jopa.png"
+        src={Jopa} // Теперь используем импортированный модуль
         className="absolute inset-0 w-full h-full object-fill"
-        alt=""
+        alt="Фон"
       />
       <div className="absolute inset-0 backdrop-blur-sm bg-white/10"></div>
       <div className="relative z-10 flex flex-col items-center justify-center gap-6 px-10 h-full">
