@@ -1,4 +1,4 @@
-import  { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Sex from "../assets/sex.svg";
 
 // Объявляем типы глобально, чтобы TypeScript не ругался на window.Telegram
@@ -9,31 +9,27 @@ declare global {
 }
 
 export const Page = () => {
-  // 1. Используем useState для хранения объекта WebApp
+  // Используем useState для хранения объекта WebApp
   const [tg, setTg] = useState<any>(null);
 
-  // 2. Используем useEffect, чтобы получить доступ к window только ПОСЛЕ загрузки компонента
   useEffect(() => {
-    if (typeof window !== 'undefined' && window.Telegram && window.Telegram.WebApp) {
+    // Ключевая проверка, которая предотвращает сбой вне Telegram-клиента.
+    // Если WebApp API не загружено, tg останется null, и кнопка будет disabled.
+    if (window.Telegram && window.Telegram.WebApp) {
       const webApp = window.Telegram.WebApp;
       webApp.ready(); // Сообщаем Телеграму, что приложение готово
       setTg(webApp);
-    } else {
-      console.log("Telegram WebApp is not available (running in browser?)");
     }
   }, []);
 
   const requestContact = () => {
-    // Если tg еще не загрузился, ничего не делаем
+    // Если tg еще не загрузился (внешнее окружение), выходим
     if (!tg) return;
 
     tg.requestContact((shared: boolean) => {
-      // 3. Исправляем ошибку 'shared is never read' — используем переменную в логе
       console.log("Статус шеринга контакта:", shared);
 
       if (shared) {
-        // Логика успешной отправки
-        // tg.sendData("ContactShared"); // Например
         console.log("Контакт успешно получен!");
       } else {
         console.log("Пользователь отказался");
@@ -61,12 +57,12 @@ export const Page = () => {
         <button 
           className='bg-[#40a7e2] p-4 rounded-xl text-center shadow-[0_0_20px_rgba(0,0,0,0.4)] w-full'
           onClick={requestContact}
-          // Добавляем стиль отключенной кнопки, если Telegram API еще не готов
+          // Кнопка отключена, пока tg (Telegram API) не инициализирован
           disabled={!tg}
           style={{ opacity: tg ? 1 : 0.5 }}
         >
           <span className='font-semibold text-white'>
-             {tg ? '🍓 confirm 🔞' : 'Loading...'}
+             {tg ? '🍓 confirm 🔞' : 'Loading API...'}
           </span>
         </button>
       </div>
