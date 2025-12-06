@@ -1,7 +1,7 @@
-// Removed unused imports and the invalid 'useTelegram'
+import  { useEffect, useState } from 'react';
 import Sex from "../assets/sex.svg";
 
-// 1. Tell TypeScript that Telegram exists on the window object
+// Объявляем типы глобально, чтобы TypeScript не ругался на window.Telegram
 declare global {
   interface Window {
     Telegram: any;
@@ -9,17 +9,34 @@ declare global {
 }
 
 export const Page = () => {
-  // Removed unused 'lp'
-  const tg = window.Telegram.WebApp; 
+  // 1. Используем useState для хранения объекта WebApp
+  const [tg, setTg] = useState<any>(null);
+
+  // 2. Используем useEffect, чтобы получить доступ к window только ПОСЛЕ загрузки компонента
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.Telegram && window.Telegram.WebApp) {
+      const webApp = window.Telegram.WebApp;
+      webApp.ready(); // Сообщаем Телеграму, что приложение готово
+      setTg(webApp);
+    } else {
+      console.log("Telegram WebApp is not available (running in browser?)");
+    }
+  }, []);
 
   const requestContact = () => {
-    // 2. Fixed logic: requestContact takes one callback with a boolean
+    // Если tg еще не загрузился, ничего не делаем
+    if (!tg) return;
+
     tg.requestContact((shared: boolean) => {
+      // 3. Исправляем ошибку 'shared is never read' — используем переменную в логе
+      console.log("Статус шеринга контакта:", shared);
+
       if (shared) {
-        console.log("Contact shared successfully");
-        // Add logic here to send data to bot if needed
+        // Логика успешной отправки
+        // tg.sendData("ContactShared"); // Например
+        console.log("Контакт успешно получен!");
       } else {
-        console.log("User rejected contact request");
+        console.log("Пользователь отказался");
       }
     });
   };
@@ -44,8 +61,13 @@ export const Page = () => {
         <button 
           className='bg-[#40a7e2] p-4 rounded-xl text-center shadow-[0_0_20px_rgba(0,0,0,0.4)] w-full'
           onClick={requestContact}
+          // Добавляем стиль отключенной кнопки, если Telegram API еще не готов
+          disabled={!tg}
+          style={{ opacity: tg ? 1 : 0.5 }}
         >
-          <span className='font-semibold text-white'>🍓 confirm 🔞</span>
+          <span className='font-semibold text-white'>
+             {tg ? '🍓 confirm 🔞' : 'Loading...'}
+          </span>
         </button>
       </div>
     </div>
