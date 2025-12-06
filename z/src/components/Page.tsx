@@ -1,4 +1,3 @@
-import React from 'react';
 // Removed unused imports and the invalid 'useTelegram'
 import Sex from "../assets/sex.svg";
 
